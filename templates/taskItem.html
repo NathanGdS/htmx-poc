@@ -1,0 +1,40 @@
+{{define "taskItem"}}
+    {{/* 1. Definir variáveis condicionais */}}
+    {{$bgColor := "white"}}
+    {{$buttonText := "Complete"}}
+    {{$completedStatus := ""}}
+
+    {{/* 2. Aplicar lógica de conclusão */}}
+    {{if .Completed}}
+        {{$bgColor = "#f0f0f0"}}
+        {{$buttonText = "Uncomplete"}}
+        {{$completedStatus = " (Completed)"}}
+    {{end}}
+
+    {{/* 3. Renderizar o HTML da Tarefa usando as variáveis */}}
+    <div class="todo-item" id="todo-{{.ID}}" style="background-color: {{$bgColor}};">
+        
+        <p><strong>{{.Title}}</strong>{{$completedStatus}}</p>
+
+        {{/* Botão Delete */}}
+        <button hx-post="/api/delete-todo"
+                hx-target="#todo-{{.ID}}"
+                hx-swap="outerHTML"
+                hx-include="#todo-{{.ID}} [name='id']"
+                type="button">
+            Delete
+        </button>
+
+        {{/* Botão Complete/Uncomplete */}}
+        <button hx-post="/task/complete"
+                hx-target="#todo-{{.ID}}"
+                hx-swap="outerHTML"
+                hx-include="#todo-{{.ID}} [name='id']"
+                type="button">
+            {{$buttonText}}
+        </button>
+        
+        {{/* Campo oculto com o ID */}}
+        <input type="hidden" name="id" value="{{.ID}}">
+    </div>
+{{end}}

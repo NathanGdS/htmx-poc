@@ -1,0 +1,10 @@
+{{define "taskList"}}
+    <div id="taskList">
+        <h3>Lista de Tarefas</h3>
+        {{/* O '.' aqui é a lista/slice de objetos Todo (ex: []Todo) */}}
+        {{range .}}
+            {{/* Chama o template 'taskItem' para cada tarefa no loop */}}
+            {{template "taskItem" .}}
+        {{end}}
+    </div>
+{{end}}
