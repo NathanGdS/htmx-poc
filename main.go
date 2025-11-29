@@ -17,19 +17,22 @@ type Todo struct {
 }
 
 var tasks []Todo
+var currId = 1
 
 func init() {
 	tmpl, _ = template.ParseGlob("templates/*.html")
 }
 
 func main() {
-	firstTask := Todo{123, "Teste", false}
+	firstTask := Todo{currId, "Teste", false}
 
 	tasks = append(tasks, firstTask)
 
 	http.HandleFunc("/", indexHandler)
 
-	http.HandleFunc("/tasks", fetchTodosHandler)
+	http.HandleFunc("GET /tasks", fetchTodosHandler)
+
+	http.HandleFunc("POST /tasks", addTodoHandler)
 
 	http.HandleFunc("/task/complete", completeTodoHandler)
 
@@ -95,5 +98,30 @@ func completeTodoHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)
 			}
 		}
+	}
+}
+
+func addTodoHandler(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	title := r.FormValue("title")
+	if title == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+
+	newTask := Todo{currId + 1, title, false}
+	currId++
+	tasks = append(tasks, Todo{len(tasks), title, false})
+
+	log.Println("new todo inserted")
+
+	err := tmpl.ExecuteTemplate(w, "taskItem", newTask)
+
+	if err != nil {
+		http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)
 	}
 }

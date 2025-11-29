@@ -11,6 +11,12 @@
 <body>
     <h1>HTMX Poc</h1> 
 
+    <!-- Form to add a new TODO -->
+    <form id="add-todo-form" hx-post="/tasks" hx-swap="beforeend" hx-target="#taskList">
+        <input type="text" name="title" placeholder="Enter a TODO item" required>
+        <button type="submit">Add</button>
+    </form>
+
     <div id="taskList" hx-get="/tasks" hx-trigger="load" hx-swap="innerHTML">
 </body>
 
