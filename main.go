@@ -36,6 +36,8 @@ func main() {
 
 	http.HandleFunc("/task/complete", completeTodoHandler)
 
+	http.HandleFunc("POST /task/delete", deleteTaskHandler)
+
 	http.HandleFunc("/tasks/count", countTodosHandler)
 
 	http.HandleFunc("/update", func(w http.ResponseWriter, r *http.Request) {
@@ -132,7 +134,6 @@ func addTodoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func countTodosHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("counting...")
 	count := len(tasks)
 	var completedTasks = 0
 
@@ -156,4 +157,36 @@ func countTodosHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Delete handler")
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("id")
+	if id == "" {
+		http.Error(w, "ID is required", http.StatusBadRequest)
+		return
+	}
+
+	num, convErr := strconv.Atoi(id)
+	if convErr != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	for idx, task := range tasks {
+		if task.ID == num {
+			tasks = append(tasks[:idx], tasks[idx+1:]...)
+
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}
+
+	http.Error(w, "Task not found", http.StatusNotFound)
 }
