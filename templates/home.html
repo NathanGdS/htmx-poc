@@ -6,13 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTMX Poc</title>
     <script src="https://unpkg.com/htmx.org"></script>
+    <style>
+        body {
+            background-color: aliceblue;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>HTMX Poc</h1> 
+    <h1>HTMX Poc</h1>
 
+    <div id="total-tasks-display" hx-get="/tasks/count" hx-trigger="load, refreshCounter from:body">
+        Carregando...
+    </div>
+
+    <!-- <div id="total-tasks-display" hx-get="/tasks/count" hx-trigger="load, refreshCounter">
+        Carregando...
+    </div> -->
     <!-- Form to add a new TODO -->
-    <form id="add-todo-form" hx-post="/tasks" hx-swap="beforeend" hx-target="#taskList">
+    <form id="add-todo-form" hx-post="/tasks" hx-swap="beforeend" hx-target="#taskList"
+        hx-on::after-request="htmx.trigger('#total-tasks-display', 'refreshCounter')">
         <input type="text" name="title" placeholder="Enter a TODO item" required>
         <button type="submit">Add</button>
     </form>

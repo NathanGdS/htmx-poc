@@ -16,21 +16,24 @@
         
         <p><strong>{{.Title}}</strong>{{$completedStatus}}</p>
 
-        {{/* Botão Delete */}}
+        <!-- {{/* Botão Delete */}}
         <button hx-post="/api/delete-todo"
                 hx-target="#todo-{{.ID}}"
+                hx-on::after-request="htmx.trigger('#total-tasks-display', 'refreshCounter')"
                 hx-swap="outerHTML"
                 hx-include="#todo-{{.ID}} [name='id']"
                 type="button">
             Delete
-        </button>
+        </button> -->
 
         {{/* Botão Complete/Uncomplete */}}
         <button hx-post="/task/complete"
                 hx-target="#todo-{{.ID}}"
                 hx-swap="outerHTML"
                 hx-include="#todo-{{.ID}} [name='id']"
-                type="button">
+                type="button"
+                hx-on::after-swap="console.log('Disparando Contador!'); htmx.trigger('#total-tasks-display', 'refreshCounter')"
+                >
             {{$buttonText}}
         </button>
         

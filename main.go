@@ -36,6 +36,8 @@ func main() {
 
 	http.HandleFunc("/task/complete", completeTodoHandler)
 
+	http.HandleFunc("/tasks/count", countTodosHandler)
+
 	http.HandleFunc("/update", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Updated route")
 		w.Header().Set("Content-Type", "text/html")
@@ -90,13 +92,15 @@ func completeTodoHandler(w http.ResponseWriter, r *http.Request) {
 	for idx, task := range tasks {
 		if task.ID == num {
 			tasks[idx].Completed = !tasks[idx].Completed
-
+			w.Header().Set("HX-Trigger", "refreshCounter")
 			err := tmpl.ExecuteTemplate(w, "taskItem", tasks[idx])
 			log.Printf("Task ID %d updated", idx)
 
 			if err != nil {
 				http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)
 			}
+
+			return
 		}
 	}
 }
@@ -113,13 +117,41 @@ func addTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newTask := Todo{currId + 1, title, false}
 	currId++
-	tasks = append(tasks, Todo{len(tasks), title, false})
+	newTask := Todo{currId, title, false}
+
+	tasks = append(tasks, newTask)
 
 	log.Println("new todo inserted")
 
 	err := tmpl.ExecuteTemplate(w, "taskItem", newTask)
+
+	if err != nil {
+		http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func countTodosHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("counting...")
+	count := len(tasks)
+	var completedTasks = 0
+
+	for _, task := range tasks {
+		if task.Completed {
+			completedTasks++
+		}
+	}
+
+	// Executa o template criado (templates/counter.html)
+	err := tmpl.ExecuteTemplate(w, "report-display", struct {
+		TotalTasks     int
+		CompletedTasks int
+		PendingTasks   int
+	}{
+		TotalTasks:     count,
+		CompletedTasks: completedTasks,
+		PendingTasks:   count - completedTasks,
+	})
 
 	if err != nil {
 		http.Error(w, "Erro ao renderizar a lista de tarefas: "+err.Error(), http.StatusInternalServerError)

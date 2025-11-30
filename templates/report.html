@@ -1,0 +1,20 @@
+{{define "report-display"}}
+<!-- desta forma, vai sempre atualizar, quase como um pooling infinito!-->
+<!-- <div id="total-tasks-display" hx-get="/tasks/count" hx-trigger="load once, refreshCounter from:body"> -->
+    <table>
+        <tr style="display: flex;text-align: center; column-gap: 1em;">
+            <th>
+                <p style="font-size: larger;">Total: {{.TotalTasks}}</p>
+            </th>
+            <th>
+                <p style="color: green;font-size: larger;">Completed: {{.CompletedTasks}}</p>
+            </th>
+            <th>
+                <p style="color: yellowgreen; font-size: larger;">Pending: {{.PendingTasks}}</p>
+            </th>
+        </tr>
+    </table>
+
+    <hr>
+<!-- </div> -->
+{{end}}
